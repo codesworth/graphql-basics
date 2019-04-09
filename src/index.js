@@ -2,13 +2,35 @@ import { GraphQLServer } from "graphql-yoga";
 
 //type Definitions :: Applcation Schema
 
+//Dummy user Array
+const users = [
+  {
+    id: "asj0saa-sdass",
+    name: "Lord lyton",
+    age: 409,
+    email: "lorad@gmail.com"
+  },
+  {
+    id: "asj0saa-sdane",
+    name: "Lord Caron",
+    age: 49,
+    email: "caron@gmail.com"
+  },
+  {
+    id: "asdwplso0saa-sdass",
+    name: "Khal Pono",
+    age: 50,
+    email: "kpono@gmail.com"
+  }
+];
+
 //Scaler Types: String, Boolean, Int, Float, ID
 const typedefs = `
     type Query{
-      greeting(name: String): String!
+      users(query:String):[User!]!
       me: User!
       post:Post!
-      add(vals:[Float!]!):Float
+      
     }
 
     type User{
@@ -38,10 +60,6 @@ const resolvers = {
       };
     },
 
-    add(parent, args, ctx, info) {
-      return args.vals.reduce((x, y) => x + y);
-    },
-
     post() {
       return {
         id: "Sjkjs-dsnnsd",
@@ -52,11 +70,13 @@ const resolvers = {
       };
     },
 
-    greeting(parent, args, ctx, info) {
-      if (args.name) {
-        return `Hello There ${args.name}`;
+    users(parent, args, ctx, info) {
+      if (!args.query) {
+        return users;
       }
-      return "Hello";
+      return users.filter(x => {
+        return x.name.toLowerCase().includes(args.query.toLowerCase());
+      });
     }
   }
 };
