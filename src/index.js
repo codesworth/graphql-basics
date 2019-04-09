@@ -8,6 +8,7 @@ const typedefs = `
       greeting(name: String): String!
       me: User!
       post:Post!
+      add(vals:[Float!]!):Float
     }
 
     type User{
@@ -35,6 +36,10 @@ const resolvers = {
         age: 45,
         email: "Addon Save"
       };
+    },
+
+    add(parent, args, ctx, info) {
+      return args.vals.reduce((x, y) => x + y);
     },
 
     post() {
