@@ -84,6 +84,11 @@ var comments = [
 
 //Scaler Types: String, Boolean, Int, Float, ID
 const typedefs = `
+
+    type Mutation{
+      createUser(name:String!,email:String!, age:Int):User!
+    }
+
     type Query{
       users(query:String):[User!]!
       me: User!
@@ -119,6 +124,12 @@ const typedefs = `
 
 //Resolvers:: Set of FUnctions for each action
 const resolvers = {
+  Mutation: {
+    createUser(parent, args, ctx, info) {
+      console.log(args);
+    }
+  },
+
   Query: {
     me() {
       return {
