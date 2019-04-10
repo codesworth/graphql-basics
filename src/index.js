@@ -1,5 +1,5 @@
 import { GraphQLServer } from "graphql-yoga";
-
+import uuidv4 from "uuid/v4";
 //type Definitions :: Applcation Schema
 
 //Dummy user Array
@@ -87,6 +87,8 @@ const typedefs = `
 
     type Mutation{
       createUser(name:String!,email:String!, age:Int):User!
+      createPost(title:String!,body:String!,published:Boolean!, poster:ID!):Post!
+      createComment(text:String!,post:ID!,commentor:ID!):Comment
     }
 
     type Query{
@@ -127,6 +129,61 @@ const resolvers = {
   Mutation: {
     createUser(parent, args, ctx, info) {
       console.log(args);
+      const emailtaken = users.some(x => x.email === args.email);
+      if (emailtaken) {
+        throw new Error("Email is already taken");
+      }
+
+      const user = {
+        id: uuidv4(),
+        name: args.name,
+        email: args.email,
+        age: args.age
+      };
+
+      users.push(user);
+
+      return user;
+    },
+
+    createPost(parent, args, ctx, info) {
+      const userExist = users.some(x => x.id === args.poster);
+      if (!userExist) {
+        throw new Error("User Not Founds");
+      }
+
+      const newPost = {
+        id: uuidv4(),
+        title: args.title,
+        body: args.body,
+        published: args.published,
+        poster: args.poster
+      };
+
+      posts.push(newPost);
+
+      return newPost;
+    },
+
+    createComment(parent, args, ctx, info) {
+      const canComment =
+        users.some(x => x.id === args.commentor) &&
+        posts.some(x => x.id === args.post);
+      if (!canComment) {
+        throw new Error("Cannot Post comment at this time");
+      }
+
+      const comment = {
+        id: uuidv4(),
+        text: args.text,
+        post: args.post,
+        commentor: args.commentor
+      };
+
+      comments.push(comment);
+      // const index = posts.findIndex(x => x.id === args.post);
+      // posts[index].comments.push(comment.id);
+      return comment;
     }
   },
 
