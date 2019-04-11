@@ -3,7 +3,7 @@ import uuidv4 from "uuid/v4";
 //type Definitions :: Applcation Schema
 
 //Dummy user Array
-const users = [
+let users = [
   {
     id: "asj0saa-sdass",
     name: "Lord lyton",
@@ -24,11 +24,11 @@ const users = [
   }
 ];
 
-const posts = [
+let posts = [
   {
     id: "Sjkjs-dsnnsd",
     title: "GrapphQL",
-    poster: users[0].id,
+    poster: "asj0saa-sdane",
     published: false,
     body:
       "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Maiores consectetur eveniet sunt quia officiis aperiam, blanditiis quaerat repellat ex inventore aliquid beatae ipsa saepe vero vel soluta! Repudiandae, voluptas ex!"
@@ -36,7 +36,7 @@ const posts = [
   {
     id: "-wgets-dsnnsd",
     title: "Redux Materilas",
-    poster: users[0].id,
+    poster: users[1].id,
     published: true,
     body:
       "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Maiores consectetur eveniet sunt quia officiis aperiam, blanditiis quaerat repellat ex inventore aliquid beatae ipsa saepe vero vel soluta! Repudiandae, voluptas ex!"
@@ -51,10 +51,10 @@ const posts = [
   }
 ];
 
-var comments = [
+let comments = [
   {
     id: "jxy-234yx",
-    commentor: users[0].id,
+    commentor: users[1].id,
     post: posts[0].id,
     text:
       "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Animi eligendi inventore debitis ex sed ratione nostrum enim ut possimus, unde excepturi minus praesentium optio exercitationem libero, cum molestiae? Ex, quia."
@@ -62,14 +62,14 @@ var comments = [
   {
     id: "jxy-234yx",
     commentor: users[1].id,
-    post: posts[0].id,
+    post: posts[2].id,
     text:
       "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Explicabo sapiente culpa repellat dolore nam. Alias expedita rerum est dolores recusandae labore corporis quod, corrupti blanditiis minus sapiente saepe, a totam."
   },
   {
     id: "jxy-234yx",
     commentor: users[1].id,
-    post: posts[1].id,
+    post: posts[2].id,
     text:
       "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sit obcaecati dolores esse repudiandae suscipit? Ipsum vel quo modi maxime illum, velit beatae accusantium, consectetur vero tempora sint numquam voluptatem explicabo."
   },
@@ -86,9 +86,29 @@ var comments = [
 const typedefs = `
 
     type Mutation{
-      createUser(name:String!,email:String!, age:Int):User!
-      createPost(title:String!,body:String!,published:Boolean!, poster:ID!):Post!
-      createComment(text:String!,post:ID!,commentor:ID!):Comment
+      createUser(data:UserInput):User!
+      deleteUser(id:ID):User!
+      createPost(data:PostInput):Post!
+      createComment(data:CommentInput):Comment
+    }
+
+    input UserInput{
+      name:String!,
+      email:String,
+      age:Int!
+    }
+
+    input PostInput{
+      title:String!,
+      body:String!,
+      published:Boolean!,
+      poster:ID!
+    }
+
+    input CommentInput{
+      text:String!,
+      post:ID!,
+      commentor:ID!
     }
 
     type Query{
@@ -136,9 +156,7 @@ const resolvers = {
 
       const user = {
         id: uuidv4(),
-        name: args.name,
-        email: args.email,
-        age: args.age
+        ...args.data
       };
 
       users.push(user);
@@ -146,18 +164,39 @@ const resolvers = {
       return user;
     },
 
+    deleteUser(parent, args, ctx, info) {
+      const index = users.findIndex(x => x.id === args.id);
+      if (index < 0) {
+        throw new Error("User does not exist");
+      }
+
+      const user = users.splice(index, 1);
+      posts = posts.filter(post => {
+        const authored = post.poster === args.id;
+        if (authored) {
+          comments = comments.filter(comment => {
+            return comment.post !== post.id;
+          });
+        }
+        return !authored;
+      });
+
+      comments = comments.filter(comment => {
+        comment.commentor !== args.id;
+      });
+
+      return user[0];
+    },
+
     createPost(parent, args, ctx, info) {
-      const userExist = users.some(x => x.id === args.poster);
+      const userExist = users.some(x => x.id === args.data.poster);
       if (!userExist) {
         throw new Error("User Not Founds");
       }
 
       const newPost = {
         id: uuidv4(),
-        title: args.title,
-        body: args.body,
-        published: args.published,
-        poster: args.poster
+        ...args.data
       };
 
       posts.push(newPost);
@@ -167,17 +206,15 @@ const resolvers = {
 
     createComment(parent, args, ctx, info) {
       const canComment =
-        users.some(x => x.id === args.commentor) &&
-        posts.some(x => x.id === args.post);
+        users.some(x => x.id === args.data.commentor) &&
+        posts.some(x => x.id === args.data.post);
       if (!canComment) {
         throw new Error("Cannot Post comment at this time");
       }
 
       const comment = {
         id: uuidv4(),
-        text: args.text,
-        post: args.post,
-        commentor: args.commentor
+        ...args.data
       };
 
       comments.push(comment);
@@ -201,7 +238,7 @@ const resolvers = {
     },
 
     posts() {
-      return posts;
+      return users;
     },
 
     users(parent, args, ctx, info) {
