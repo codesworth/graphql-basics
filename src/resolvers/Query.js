@@ -15,11 +15,12 @@ const Query = {
     return db.posts;
   },
 
-  users(parent, args, { db }, info) {
+  users(parent, args, ctx, info) {
+    console.log(ctx);
     if (!args.query) {
-      return db.users;
+      return ctx.db.users;
     }
-    return db.users.filter(x => {
+    return ctx.db.users.filter(x => {
       return x.name.toLowerCase().includes(args.query.toLowerCase());
     });
   }

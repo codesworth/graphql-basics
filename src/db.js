@@ -1,4 +1,4 @@
-let users = [
+const users = [
   {
     id: "asj0saa-sdass",
     name: "Lord lyton",
@@ -19,7 +19,7 @@ let users = [
   }
 ];
 
-let posts = [
+const posts = [
   {
     id: "Sjkjs-dsnnsd",
     title: "GrapphQL",
@@ -46,7 +46,7 @@ let posts = [
   }
 ];
 
-let comments = [
+const comments = [
   {
     id: "jxy-234yx",
     commentor: users[1].id,
@@ -77,8 +77,10 @@ let comments = [
   }
 ];
 
-export const db = {
+const db = {
   users,
   posts,
   comments
 };
+
+export { db as default };

@@ -1,6 +1,6 @@
 const Post = {
   poster(parent, args, { db }, info) {
-    return users.find(x => {
+    return db.users.find(x => {
       return x.id === parent.id;
     });
   },
