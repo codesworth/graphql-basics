@@ -23,8 +23,8 @@ const posts = [
   {
     id: "Sjkjs-dsnnsd",
     title: "GrapphQL",
-    poster: "asj0saa-sdane",
-    published: false,
+    poster: users[0].id,
+    published: true,
     body:
       "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Maiores consectetur eveniet sunt quia officiis aperiam, blanditiis quaerat repellat ex inventore aliquid beatae ipsa saepe vero vel soluta! Repudiandae, voluptas ex!"
   },
@@ -32,7 +32,7 @@ const posts = [
     id: "-wgets-dsnnsd",
     title: "Redux Materilas",
     poster: users[1].id,
-    published: true,
+    published: false,
     body:
       "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Maiores consectetur eveniet sunt quia officiis aperiam, blanditiis quaerat repellat ex inventore aliquid beatae ipsa saepe vero vel soluta! Repudiandae, voluptas ex!"
   },
@@ -48,7 +48,7 @@ const posts = [
 
 const comments = [
   {
-    id: "jxy-234yx",
+    id: "jxy-2yx",
     commentor: users[1].id,
     post: posts[0].id,
     text:
@@ -62,14 +62,14 @@ const comments = [
       "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Explicabo sapiente culpa repellat dolore nam. Alias expedita rerum est dolores recusandae labore corporis quod, corrupti blanditiis minus sapiente saepe, a totam."
   },
   {
-    id: "jxy-234yx",
+    id: "jxy-gh4yx",
     commentor: users[1].id,
     post: posts[2].id,
     text:
       "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sit obcaecati dolores esse repudiandae suscipit? Ipsum vel quo modi maxime illum, velit beatae accusantium, consectetur vero tempora sint numquam voluptatem explicabo."
   },
   {
-    id: "jxy-234yx",
+    id: "-234yx",
     post: posts[2].id,
     commentor: users[2].id,
     text:

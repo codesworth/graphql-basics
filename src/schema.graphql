@@ -3,9 +3,11 @@ type Mutation {
   deleteUser(id: ID): User!
   updateUser(id: ID, data: UserUpdateInput!): User!
   createPost(data: PostInput): Post!
+  deletePost(id: ID): Post!
   updatePost(id: ID, data: PostUpdateInput): Post!
   createComment(data: CommentInput): Comment!
   updateComment(id: ID, data: CommentUpdateInput): Comment
+  deleteComment(id: ID): Comment!
 }
 
 input UserUpdateInput {
@@ -73,4 +75,14 @@ type Post {
   body: String
   poster: User!
   comments: [Comment!]!
+}
+
+type Subscription {
+  comment(postId: ID!): Comment!
+  post: PostSubscriptionPayload!
+}
+
+type PostSubscriptionPayload {
+  data: Post!
+  mutation: String!
 }

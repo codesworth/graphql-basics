@@ -70,7 +70,7 @@ const Mutation = {
     return user;
   },
 
-  createPost(parent, args, { db }, info) {
+  createPost(parent, args, { db, pubsub }, info) {
     const userExist = db.users.some(x => x.id === args.data.poster);
     if (!userExist) {
       throw new Error("User Not Founds");
@@ -82,13 +82,19 @@ const Mutation = {
     };
 
     db.posts.push(newPost);
-
+    pubsub.publish("post", {
+      post: {
+        mutation: "CREATED",
+        data: newPost
+      }
+    });
     return newPost;
   },
 
-  updatePost(parent, { id, data }, { db }, info) {
+  updatePost(parent, { id, data }, { db, pubsub }, info) {
     const { title, body, published } = data;
     const post = db.posts.find(x => x.id === id);
+    const oldPost = { ...post };
 
     if (!post) {
       throw new Error("Post does not exist");
@@ -104,12 +110,58 @@ const Mutation = {
 
     if (typeof published === "boolean") {
       post.published = published;
+      if (oldPost.published && !post.published) {
+        //Deleted
+        pubsub.publish("post", {
+          post: {
+            mutation: "DELETE",
+            data: oldPost
+          }
+        });
+      } else if (!oldPost.published && !post.published) {
+        pubsub.publish("post", {
+          post: {
+            mutation: "CREATE",
+            data: post
+          }
+        });
+      }
+    } else if (post.published) {
+      pubsub.publish("post", {
+        post: {
+          mutation: "UPDATE",
+          data: post
+        }
+      });
     }
 
     return post;
   },
 
-  createComment(parent, args, { db }, info) {
+  deletePost(parent, args, { db, pubsub }, info) {
+    const index = db.posts.findIndex(x => x.id === args.id);
+
+    if (index === -1) {
+      throw new Error("Post not Found");
+    }
+
+    const deletedPosts = db.posts.splice(index, 1)[0];
+
+    db.comment = db.comments.filter(x => x !== deletedPosts.id);
+
+    if (deletedPosts.published) {
+      pubsub.publish("post", {
+        post: {
+          mutation: "DELETE",
+          data: deletedPosts
+        }
+      });
+    }
+
+    return deletedPosts;
+  },
+
+  createComment(parent, args, { pubsub, db }, info) {
     const canComment =
       db.users.some(x => x.id === args.data.commentor) &&
       db.posts.some(x => x.id === args.data.post);
@@ -123,6 +175,7 @@ const Mutation = {
     };
 
     db.comments.push(comment);
+    pubsub.publish(`comment ${args.data.post}`, { comment });
     // const index = posts.findIndex(x => x.id === args.post);
     // posts[index].comments.push(comment.id);
     return comment;
@@ -139,6 +192,18 @@ const Mutation = {
     }
 
     return comment;
+  },
+
+  deleteComment(parent, args, { db }, info) {
+    const index = db.comments.findIndex(c => c.id === args.id);
+    if (index === -1) {
+      throw new Error("Comment Does not exist");
+    }
+
+    const deleted = db.comments.splice(index, 1)[0];
+    db.comments = db.comments.filter(x => x.id !== deleted.id);
+
+    return deleted;
   }
 };
 
