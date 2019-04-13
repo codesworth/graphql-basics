@@ -217,7 +217,7 @@ const Mutation = {
     pubsub.publish(`comment ${deleted.post}`, {
       comment: {
         data: comment,
-        mutation: "DELETEED"
+        mutation: "DELETED"
       }
     });
 
